@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import axios from 'axios';
 import loginImage from '../assets/images/logimg.png';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    userId: '',
+    logId: '',
     password: '',
   });
   const [errors, setErrors] = useState({});
@@ -22,20 +24,77 @@ const Login = () => {
   // Form Validation
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.userId) newErrors.userId = 'Phone/User ID is required';
+    if (!formData.logId) newErrors.logId = 'Phone/User ID is required';
     if (!formData.password) newErrors.password = 'Password is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   // Handle form submit
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent default form submission
-    if (validateForm()) {
-      console.log('Form Submitted', formData);
-      // Proceed with form submission, like API call for login
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    try {
+      const res = await axios.post(
+        'https://ngo.api.assortsmachinetools.com/api/log-in',
+        formData
+      );
+      console.log(res)
+      if (res.status === 200) {
+        sessionStorage.setItem('login', true);
+        sessionStorage.setItem("UserId", res.data.user.id);
+        // Retrieve the redirect URL from session storage or default to '/admin-dashboard'
+        const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin') || '/admin-dashboard';
+        const redirectAfterLoginMarriage = sessionStorage.getItem('redirectAfterLoginmarrige') || '/admin-dashboard';
+        const redirectAfterLoginGirlBorn = sessionStorage.getItem('redirectAfterLogingirlborn') || '/admin-dashboard';
+        const redirectAfterLoginAccidental = sessionStorage.getItem('redirectAfterLoginAccidental') || '/admin-dashboard';
+        const redirectAfterLoginSupport = sessionStorage.getItem('redirectAfterLoginhome') || '/admin-dashboard';
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful',
+          text: 'You have successfully logged in!',
+        }).then(() => {
+          // Navigate to the first available redirect URL
+          if (redirectAfterLogin !== '/admin-dashboard') {
+            window.location.href = redirectAfterLogin;
+          } else if (redirectAfterLoginMarriage !== '/admin-dashboard') {
+            window.location.href = redirectAfterLoginMarriage;
+          } else if (redirectAfterLoginGirlBorn !== '/admin-dashboard') {
+            window.location.href = redirectAfterLoginGirlBorn;
+          } else if (redirectAfterLoginAccidental !== '/admin-dashboard') {
+            window.location.href = redirectAfterLoginAccidental;
+          }
+          else if (redirectAfterLoginSupport !== '/admin-dashboard') {
+            window.location.href = redirectAfterLoginSupport;
+          } else {
+            window.location.href = '/admin-dashboard'; // Default fallback
+          }
+          sessionStorage.removeItem("redirectAfterLogin"); // Clear after use
+          sessionStorage.removeItem("redirectAfterLoginmarrige"); // Clear after use
+          sessionStorage.removeItem("redirectAfterLogingirlborn"); // Clear after use
+          sessionStorage.removeItem("redirectAfterLoginAccidental"); // Clear after use
+        });
+      }
+    } catch (error) {
+      console.error(error);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: error.response?.data?.errors || 'An error occurred. Please try again.',
+      });
     }
   };
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }, [])
 
   return (
     <>
@@ -48,30 +107,24 @@ const Login = () => {
             <h2>LOGIN</h2>
             <p>Please fill your detail to access your account.</p>
             <form onSubmit={handleSubmit}>
-              <label
-                htmlFor="userId"
-                style={{ color: '#6c757d', fontSize: '15px' }}
-              >
+              <label htmlFor="logId" style={{ color: '#6c757d', fontSize: '15px' }}>
                 Phone / User ID
               </label>
               <input
                 type="text"
                 placeholder="phone / user id"
-                name="userId"
-                value={formData.userId}
+                name="logId"
+                value={formData.logId}
                 onChange={handleInputChange}
               />
-              {errors.userId && (
+              {errors.logId && (
                 <div className="text-danger" style={{ fontSize: '12px' }}>
-                  {errors.userId}
+                  {errors.logId}
                 </div>
               )}
 
               <div style={{ position: 'relative' }}>
-                <label
-                  htmlFor="password"
-                  style={{ color: '#6c757d', fontSize: '15px' }}
-                >
+                <label htmlFor="password" style={{ color: '#6c757d', fontSize: '15px' }}>
                   Password
                 </label>
                 <input
@@ -105,7 +158,7 @@ const Login = () => {
               <div>
                 <input type="checkbox" id="remember" />
                 <label htmlFor="remember">Remember me</label>
-                <Link to="" style={{ float: 'right' }}>
+                <Link to="/forgot-password" style={{ float: 'right' }}>
                   Forgot Password?
                 </Link>
               </div>
@@ -113,8 +166,6 @@ const Login = () => {
               <button type="submit" className="btn btn-primary mt-4">
                 Sign in
               </button>
-              {/* Uncomment to use Google login button */}
-              {/* <button type="button" className="btn btn-google"><FaGoogle /> Sign in with Google</button> */}
 
               <div className="signup">
                 <p>

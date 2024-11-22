@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 import loginImage from '../assets/images/logimg.png';
 
 const Registration = () => {
@@ -9,21 +11,21 @@ const Registration = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    phone: '',
+    mobile: '',
     email: '',
-    dob: '',
+    dateOfBirth: '',
     state: '',
     city: '',
-    address1: '',
-    address2: '',
-    pinCode: '',
-    landMark: '',
+    address: '',
+    country: 'India',
+    district: '',
+    pincode: '',
+    landmark: '',
     password: '',
     confirmPassword: ''
   });
 
-  // Error State
-  const [errors, setErrors] = useState({});
+
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -34,34 +36,41 @@ const Registration = () => {
     });
   };
 
-  // Form Validation
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.firstName) newErrors.firstName = 'First Name is required';
-    if (!formData.lastName) newErrors.lastName = 'Last Name is required';
-    if (!formData.phone || formData.phone.length !== 10) newErrors.phone = 'Phone number must be 10 digits';
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    if (!formData.dob) newErrors.dob = 'Date of birth is required';
-    if (!formData.state) newErrors.state = 'State is required';
-    if (!formData.city) newErrors.city = 'City is required';
-    if (!formData.address1) newErrors.address1 = 'Address1 is required';
-    if (!formData.address2) newErrors.address2 = 'Address2 is required';
-    if (!formData.pinCode) newErrors.pinCode = 'Pin code is required';
-    if (!formData.landMark) newErrors.landMark = 'Land mark is required';
-    if (!formData.password) newErrors.password = 'Password is required';
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   // Handle form submit
-  const handleSubmit = (e) => {
-    e.preventDefault();  // Prevent default form submission
-    if (validateForm()) {
-      console.log('Form Data:', formData);
-      // Proceed with form submission, like sending data to backend
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    try {
+      const response = await axios.post('http://localhost:8000/api/signup', formData);
+      if (response.status = 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Sign Up Successful',
+          text: 'You have successfully Signup !',
+        })
+      }
+      setFormData({
+        firstName: '',
+        lastName: '',
+        mobile: '',
+        email: '',
+        dateOfBirth: '',
+        state: '',
+        city: '',
+        address: '',
+        country: '',
+        district: '',
+        pincode: '',
+        landmark: '',
+        password: '',
+        confirmPassword: ''
+      });
+    } catch (error) {
+      console.log(error)
+      Swal.fire({
+        icon: 'error',
+        title: 'Signup Failed',
+        text: error.response?.data?.errors || 'An error occurred. Please try again.',
+      });
     }
   };
 
@@ -82,9 +91,8 @@ const Registration = () => {
                   placeholder="First Name"
                   type="text"
                   value={formData.firstName}
-                  onChange={handleInputChange}
+                  onChange={handleInputChange} required
                 />
-                {errors.firstName && <div className="text-danger">{errors.firstName}</div>}
               </div>
 
               <div className="form-group">
@@ -95,9 +103,181 @@ const Registration = () => {
                   placeholder="Last Name"
                   type="text"
                   value={formData.lastName}
-                  onChange={handleInputChange}
+                  onChange={handleInputChange} required
                 />
-                {errors.lastName && <div className="text-danger">{errors.lastName}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="mobile">Mobile No.</label>
+                <input
+                  id="mobile"
+                  name="mobile"
+                  placeholder="Enter mobile no. here"
+                  type="number"
+                  pattern="[0-9]"
+                  value={formData.mobile}
+                  onChange={handleInputChange} required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange} required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="dateOfBirth">Date Of Birth</label>
+                <input
+                  id="dateOfBirth"
+                  name="dateOfBirth"
+                  placeholder="Date of birth"
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={handleInputChange} required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="country">country</label>
+                <select
+                  className="form-select"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleInputChange} required
+                  aria-label="Default select example"
+                  style={{ outline: "none", boxShadow: "none" }}
+                >
+                  <option selected disabled>Select country</option>
+                  <option value="India">India</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="state">State</label>
+                <select
+                  className="form-select"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleInputChange} required
+                  aria-label="Default select example"
+                  style={{ outline: "none", boxShadow: "none" }}
+                >
+                  <option value="" selected disabled>
+                    Select State
+                  </option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Andaman and Nicobar Islands">
+                    Andaman and Nicobar Islands
+                  </option>
+                  <option value="Chandigarh">Chandigarh</option>
+                  <option value="Dadra and Nagar Haveli and Daman and Diu">
+                    Dadra and Nagar Haveli and Daman and Diu
+                  </option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                  <option value="Ladakh">Ladakh</option>
+                  <option value="Lakshadweep">Lakshadweep</option>
+                  <option value="Puducherry">Puducherry</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="district">District</label>
+                <input
+                  id="district"
+                  name="district"
+                  placeholder="Type Your District"
+                  type="text"
+                  value={formData.district}
+                  onChange={handleInputChange} required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="city">City</label>
+                <input
+                  id="city"
+                  name="city"
+                  placeholder="City"
+                  type="text"
+                  value={formData.city}
+                  onChange={handleInputChange} required
+                />
+              </div>
+
+
+
+
+              <div className="form-group">
+                <label htmlFor="address">Address</label>
+                <input
+                  id="address"
+                  name="address"
+                  placeholder="Type Your Address"
+                  type="text"
+                  value={formData.address}
+                  onChange={handleInputChange} required
+                />
+              </div>
+
+
+
+              <div className="form-group">
+                <label htmlFor="pin-code">Pin code</label>
+                <input
+                  id="pin-code"
+                  name="pincode"
+                  placeholder="Enter pin code here"
+                  type="number"
+                  value={formData.pincode}
+                  onChange={handleInputChange} required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="land-mark">Land mark</label>
+                <input
+                  id="land-mark"
+                  name="landmark"
+                  placeholder="Enter road name"
+                  type="text"
+                  value={formData.landmark}
+                  onChange={handleInputChange} required
+                />
               </div>
 
               <div style={{ position: 'relative' }}>
@@ -110,7 +290,7 @@ const Registration = () => {
                   placeholder="Enter your password"
                   style={{ width: '100%' }}
                   value={formData.password}
-                  onChange={handleInputChange}
+                  onChange={handleInputChange} required
                 />
                 <span
                   onClick={() => setShowPassword(!showPassword)}
@@ -120,7 +300,6 @@ const Registration = () => {
                 >
                   {showPassword ? "🙉" : "🙈"}
                 </span>
-                {errors.password && <div className="text-danger">{errors.password}</div>}
               </div>
 
               <div style={{ position: 'relative' }}>
@@ -133,7 +312,7 @@ const Registration = () => {
                   placeholder="Confirm password"
                   style={{ width: '100%' }}
                   value={formData.confirmPassword}
-                  onChange={handleInputChange}
+                  onChange={handleInputChange} required
                 />
                 <span
                   onClick={() => setCshowPassword(!cshowPassword)}
@@ -143,143 +322,17 @@ const Registration = () => {
                 >
                   {cshowPassword ? "🙉" : "🙈"}
                 </span>
-                {errors.confirmPassword && <div className="text-danger">{errors.confirmPassword}</div>}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="phone">Phone No.</label>
-                <input
-                  id="phone"
-                  name="phone"
-                  placeholder="Enter phone no. here"
-                  type="number"
-                  pattern="[0-9]"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                />
-                {errors.phone && <div className="text-danger">{errors.phone}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
-                {errors.email && <div className="text-danger">{errors.email}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="dob">DOB</label>
-                <input
-                  id="dob"
-                  name="dob"
-                  placeholder="Date of birth"
-                  type="date"
-                  value={formData.dob}
-                  onChange={handleInputChange}
-                />
-                {errors.dob && <div className="text-danger">{errors.dob}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="state">State</label>
-                <select
-                  className="form-select"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleInputChange}
-                  aria-label="Default select example"
-                  style={{ outline: "none", boxShadow: "none" }}
-                >
-                  <option selected>Select State</option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </select>
-                {errors.state && <div className="text-danger">{errors.state}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="city">City</label>
-                <input
-                  id="city"
-                  name="city"
-                  placeholder="City"
-                  type="text"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                />
-                {errors.city && <div className="text-danger">{errors.city}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="address1">Address1</label>
-                <input
-                  id="address1"
-                  name="address1"
-                  placeholder="Type Your Address line 1"
-                  type="text"
-                  value={formData.address1}
-                  onChange={handleInputChange}
-                />
-                {errors.address1 && <div className="text-danger">{errors.address1}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="address2">Address2</label>
-                <input
-                  id="address2"
-                  name="address2"
-                  placeholder="Type Your Address line 2"
-                  type="text"
-                  value={formData.address2}
-                  onChange={handleInputChange}
-                />
-                {errors.address2 && <div className="text-danger">{errors.address2}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="pin-code">Pin code</label>
-                <input
-                  id="pin-code"
-                  name="pinCode"
-                  placeholder="Enter pin code here"
-                  type="number"
-                  value={formData.pinCode}
-                  onChange={handleInputChange}
-                />
-                {errors.pinCode && <div className="text-danger">{errors.pinCode}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="land-mark">Land mark</label>
-                <input
-                  id="land-mark"
-                  name="landMark"
-                  placeholder="Enter road name"
-                  type="text"
-                  value={formData.landMark}
-                  onChange={handleInputChange}
-                />
-                {errors.landMark && <div className="text-danger">{errors.landMark}</div>}
-              </div>
-
-              <button
-                className="btn btn-primary w-100 mt-3 fw-bold"
-                style={{ background: "#22B6AF", border: "none" }}
-              >
-                Proceed
+              <button type="submit" className="btn btn-primary w-100 mt-3 fw-bold"
+                style={{ background: "#22B6AF", border: "none" }}>
+                Register
               </button>
             </form>
           </div>
 
           <div className="image-container">
-            <img alt="Save Girl Child poster with a red heart and hands illustration" src={loginImage} />
+            <img src={loginImage} alt="Login illustration" />
           </div>
         </div>
       </section>

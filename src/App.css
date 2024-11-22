@@ -137,7 +137,7 @@ p {
 
 .nav-elements {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   flex: 3;
   justify-content: flex-end;
 }
@@ -150,8 +150,8 @@ p {
   align-items: center;
 }
 
-.nav-elements ul li:not(:last-child) {
-  margin-right: 25px;
+.nav-elements ul {
+  gap: 25px;
 }
 
 /* .nav-elements ul li button{
@@ -183,7 +183,8 @@ p {
 
 @media (max-width: 768px) {
   .nav-elements ul li:not(:last-child) {
-    margin-right: 30px;
+    margin-right: 0px;
+    border-bottom: 1px solid lightgray;
   }
 
   .card {
@@ -216,7 +217,9 @@ p {
   }
 
   .nav-elements.active {
-    width: 270px;
+    width: 240px;
+    display: flex;
+    justify-content: center;
     z-index: 100;
   }
 
@@ -798,8 +801,16 @@ tbody tr th {
 }
 
 .donating {
-  padding: 40px;
+  padding: 0px;
 }
+
+@media (max-width: 768px) {
+  .donating {
+    padding: 40px;
+  }
+}
+
+
 
 .donating .progress {
   height: 10px !important;
